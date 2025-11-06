@@ -123,6 +123,8 @@
   --transition-1: 0.25s ease;
   --transition-2: 0.5s ease-in-out;
 
+  --image: url('../images/nica.jpg');
+
 }
 
 
@@ -169,9 +171,9 @@ input, textarea {
 
 html { font-family: var(--ff-poppins); }
 
-body { background: var(--smoky-black); }
+body { background: var(--smoky-black) ; }
 
-
+/* var(--image) no-repeat center center / auto */
 
 
 
