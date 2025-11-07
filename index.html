@@ -4,133 +4,470 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loading...</title>
+    <title>Personal Portfolio</title>
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
         }
 
-        body {
+        #globe-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        #globe-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .zoom-button {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .zoom-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .zoom-button:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        .zoom-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal/Overlay Styles */
+        .portfolio-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #000000 0%, #000000 100%);
-            font-family: Arial, sans-serif;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
 
-        .loading-container {
-            text-align: center;
+        .portfolio-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            width: 95%;
+            height: 95%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 50px rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transform: scale(0.8);
+            transition: transform 0.5s ease;
+        }
+
+        .portfolio-modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-button:hover {
+            background-color: rgba(255, 0, 0, 0.8);
+            transform: rotate(90deg);
+        }
+
+        .portfolio-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .loading-text {
+            font-size: 18px;
             color: white;
         }
 
-        /* Option 1: Spinner Animation */
-        .loader {
-            width: 80px;
-            height: 80px;
-            border: 8px solid rgba(255, 255, 255, 0.3);
-            border-top: 8px solid white;
+        /* Loading spinner */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
             border-radius: 50%;
-            margin: 0 auto 30px;
             animation: spin 1s linear infinite;
+            margin-bottom: 20px;
         }
 
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
+            to {
                 transform: rotate(360deg);
             }
         }
 
-        /* Option 2: If you want to use a GIF instead */
-        .loader-gif {
-  width: 300px;              /* adjust to your preferred size */
-  height: 300px;
-  margin: 0 auto 30px;
-  border-radius: 50%;        /* makes the container circular */
-  overflow: hidden;          /* hides the corners of the rectangular gif */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 2px solid #00ffff; /* neon cyan border */
-  box-shadow: 
-    0 0 10px #00ffff,
-    0 0 20px #00ffff,
-    0 0 40px #00ffff,
-    0 0 80px #00ffff;    /* optional: adds a circular border */
-}
-
-        .loading-text {
-            font-size: 24px;
-            font-weight: bold;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        .dots {
-            display: inline-block;
-            animation: dots 1.5s steps(4, end) infinite;
-        }
-
-        @keyframes dots {
-
-            0%,
-            20% {
-                content: '';
-            }
-
-            40% {
-                content: '.';
-            }
-
-            60% {
-                content: '..';
-            }
-
-            80%,
-            100% {
-                content: '...';
-            }
+        .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
     </style>
 </head>
 
 <body>
-    <div class="loading-container">
-        <!-- Option 1: CSS Spinner -->
-        <!-- <div class="loader"></div> -->
-
-        <!-- Option 2: Use GIF instead (uncomment below and comment out the .loader div above) -->
-        <div class="loader-gif">
-            <img src="assets/images/nica2.gif" alt="Loading..." style="width: 100%; height: 100%; object-fit: cover;">
-        </div>
-
-        <div class="loading-text">
-            Loading<span class="dots"></span>
+    <div id="globe-container">
+        <canvas id="globe-canvas"></canvas>
+        <button id="zoom-button" class="zoom-button">Hop-on and Explore My Work</button>
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading portfolio...</div>
+            </div>
         </div>
     </div>
 
+    <!-- Portfolio Modal -->
+    <div id="portfolio-modal" class="portfolio-modal">
+        <div class="modal-content">
+            <button id="close-button" class="close-button">&times;</button>
+            <iframe id="portfolio-iframe" class="portfolio-iframe" src=""></iframe>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
     <script>
-        // Automatically redirect to main page after 2 seconds
-        setTimeout(function () {
-            window.location.href = 'main.html'; // Change to your main page
-        }, 5000); // 2000 milliseconds = 2 seconds
+        // Initialize Three.js scene
+        let scene, camera, renderer, globe, controls;
+        let isZooming = false;
+
+        function init() {
+            // Create scene
+            scene = new THREE.Scene();
+
+            // Create camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 2.5;
+
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({
+                canvas: document.getElementById('globe-canvas'),
+                antialias: true,
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // Create controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.5;
+            controls.enableZoom = true;
+            controls.minDistance = 1.5;
+            controls.maxDistance = 10;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.5;
+
+            // Create globe
+            createGlobe();
+
+            // Create stars
+            createStars();
+
+            // Add lights
+            const ambientLight = new THREE.AmbientLight(0x333333);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(-15, 3, 5);
+            scene.add(directionalLight);
+
+            // Add event listeners
+            document.getElementById('zoom-button').addEventListener('click', zoomToLocation);
+            document.getElementById('close-button').addEventListener('click', closePortfolio);
+
+            // Close modal when clicking outside the content
+            document.getElementById('portfolio-modal').addEventListener('click', function (e) {
+                if (e.target === this) {
+                    closePortfolio();
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+
+            // Start animation loop
+            animate();
+        }
+
+        function createGlobe() {
+            const geometry = new THREE.SphereGeometry(1, 64, 64);
+
+            // Load Earth texture
+            const textureLoader = new THREE.TextureLoader();
+            const earthTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg');
+
+            const material = new THREE.MeshPhongMaterial({
+                map: earthTexture,
+                bumpScale: 0.05,
+                specular: new THREE.Color('grey'),
+                shininess: 10
+            });
+
+            globe = new THREE.Mesh(geometry, material);
+            scene.add(globe);
+        }
+
+        function createStars() {
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsMaterial = new THREE.PointsMaterial({
+                color: 0x888888,
+                size: 0.7,
+                transparent: true
+            });
+
+            const starsVertices = [];
+            for (let i = 0; i < 10000; i++) {
+                const x = (Math.random() - 0.5) * 2000;
+                const y = (Math.random() - 0.5) * 2000;
+                const z = (Math.random() - 0.5) * 2000;
+                starsVertices.push(x, y, z);
+            }
+
+            starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
+            const stars = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(stars);
+        }
+
+        function latLonToVector3(lat, lon, radius) {
+            const phi = (90 - lat) * (Math.PI / 180);
+            const theta = (lon + 180) * (Math.PI / 180);
+
+            const x = -radius * Math.sin(phi) * Math.cos(theta);
+            const y = radius * Math.cos(phi);
+            const z = radius * Math.sin(phi) * Math.sin(theta);
+
+            return new THREE.Vector3(x, y, z);
+        }
+
+        function zoomToLocation() {
+            if (isZooming) return;
+
+            isZooming = true;
+
+            // Disable auto-rotation and user controls during zoom
+            controls.autoRotate = false;
+            controls.enabled = false;
+
+            // Define target location (latitude, longitude)
+            // Example: New York City - Change this to your preferred location
+            const targetLat = 12.8797;
+            const targetLon = 121.7740;
+
+            // Convert lat/lon to 3D coordinates
+            const targetPosition = latLonToVector3(targetLat, targetLon, 1);
+
+            // Calculate camera position for zoom
+            const distance = 1.5; // How close to zoom
+            const cameraPosition = new THREE.Vector3().copy(targetPosition).normalize().multiplyScalar(distance);
+
+            // Set initial camera position for animation
+            const startPosition = camera.position.clone();
+            const endPosition = cameraPosition;
+
+            // Set target for controls to look at
+            const startTarget = controls.target.clone();
+            const endTarget = targetPosition.clone();
+
+            // Animation duration in milliseconds
+            const duration = 3000;
+            const startTime = Date.now();
+
+            // Disable button during animation
+            document.getElementById('zoom-button').disabled = true;
+
+            function animateCamera() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Ease in-out function
+                const easeProgress = progress < 0.5
+                    ? 2 * progress * progress
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+                // Interpolate camera position
+                camera.position.lerpVectors(startPosition, endPosition, easeProgress);
+
+                // Interpolate target position
+                controls.target.lerpVectors(startTarget, endTarget, easeProgress);
+                controls.update();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateCamera);
+                } else {
+                    // Animation complete, show loading overlay
+                    setTimeout(() => {
+                        document.getElementById('loading-overlay').classList.add('active');
+
+                        // Load portfolio after a short delay
+                        setTimeout(() => {
+                            openPortfolio();
+                        }, 800);
+                    }, 300);
+                }
+            }
+
+            animateCamera();
+        }
+
+        function openPortfolio() {
+            // Hide loading overlay
+            document.getElementById('loading-overlay').classList.remove('active');
+
+            // Set the iframe source to your portfolio page
+            document.getElementById('portfolio-iframe').src = 'main.html';
+
+            // Show the modal
+            document.getElementById('portfolio-modal').classList.add('active');
+
+            // Optional: Pause the globe animation when modal is open
+            controls.autoRotate = false;
+        }
+
+        function closePortfolio() {
+            // Hide the modal
+            document.getElementById('portfolio-modal').classList.remove('active');
+
+            // Clear iframe to stop any running scripts/videos
+            setTimeout(() => {
+                document.getElementById('portfolio-iframe').src = '';
+            }, 500);
+
+            // Re-enable controls and auto-rotation
+            controls.enabled = true;
+            controls.autoRotate = true;
+            isZooming = false;
+
+            // Re-enable the button
+            document.getElementById('zoom-button').disabled = false;
+
+            // Optionally zoom back out
+            resetCamera();
+        }
+
+        function resetCamera() {
+            const startPosition = camera.position.clone();
+            const endPosition = new THREE.Vector3(0, 0, 2.5);
+
+            const startTarget = controls.target.clone();
+            const endTarget = new THREE.Vector3(0, 0, 0);
+
+            const duration = 2000;
+            const startTime = Date.now();
+
+            function animateReset() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                const easeProgress = progress < 0.5
+                    ? 2 * progress * progress
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+                camera.position.lerpVectors(startPosition, endPosition, easeProgress);
+                controls.target.lerpVectors(startTarget, endTarget, easeProgress);
+                controls.update();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateReset);
+                }
+            }
+
+            animateReset();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (!isZooming) {
+                controls.update();
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Initialize the scene
+        init();
     </script>
 </body>
 
